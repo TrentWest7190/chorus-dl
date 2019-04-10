@@ -162,8 +162,9 @@ const SongListing = Styled(
             {song.album} {song.year && `(${song.year})`}
           </AlbumGenre>
           <AlbumGenre>{song.genre}</AlbumGenre>
+          <AlbumGenre>{song.sources[0].name}</AlbumGenre>
         </div>
-        <div>
+        <div className="difficulties">
           <Difficulty
             name="Guitar"
             tier={song.tier_guitar}
@@ -193,6 +194,11 @@ const SongListing = Styled(
     padding: 5px 0 5px 0;
     display: flex;
     flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .difficulties {
+    line-height: 1.6;
   }
 
   :nth-child(odd) {

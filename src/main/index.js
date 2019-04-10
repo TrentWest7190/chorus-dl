@@ -7,10 +7,6 @@ import installExtension, {
   REACT_DEVELOPER_TOOLS,
   REDUX_DEVTOOLS,
 } from 'electron-devtools-installer'
-import Store from 'electron-store'
-
-const store = new Store();
-store.set('test', true)
 
 import './downloadManager'
 import './fileScanner'
@@ -25,6 +21,7 @@ function createMainWindow() {
   const window = new BrowserWindow({
     width: 950,
     height: 785,
+    title: "Chorus-DL"
   })
 
   window.setMenu(null)

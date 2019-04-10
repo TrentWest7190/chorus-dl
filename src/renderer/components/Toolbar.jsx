@@ -5,7 +5,6 @@ import Styled from 'styled-components'
 import {
   searchCharts,
   openPreferences,
-  searchNextCharts,
 } from '../redux/actions'
 
 const ToolbarContainer = Styled.div`
@@ -26,6 +25,7 @@ const Search = Styled.input`
   outline: none;
   color: #EEEEEE;
   margin-right: 5px;
+  width: 200px;
 
   ::placeholder {
     color: #E0E0E0;

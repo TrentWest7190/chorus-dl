@@ -29,8 +29,8 @@ const CloseButton = Styled.span`
 
 const PreferencesContainer = Styled.div`
   width: 425px;
-  border-radius: 15px;
-  background-color: rgba(50, 50, 50, .9);
+  border-radius: 0 0 15px 15px;
+  background-color: rgba(50, 50, 50, .95);
   padding: 30px 20px 20px 20px;
   color: #DADADA;
   z-index: 3;
@@ -75,6 +75,14 @@ const Button = Styled.button`
   :first-child {
     margin-right: 10px;
   }
+
+  ${p =>
+    p.disabled &&
+    `
+    cursor: auto;
+    background-color: rgba(30,30,30,0.3);
+    color: #999999;
+  `}
 `
 
 const StyledLoading = Styled(ReactLoading)`
@@ -130,19 +138,26 @@ const Preferences = ({
       <LibraryDisplay>{library}</LibraryDisplay>
       <div>
         <Button onClick={() => inputEl.current.click()}>Choose Folder</Button>
-        <Button onClick={() => remote.shell.openItem(library)}>
+        <Button
+          onClick={() => remote.shell.openItem(library)}
+          disabled={library.length <= 0}
+        >
           Open Folder
         </Button>
       </div>
       <div>
-        <Button onClick={_scanLibrary}>
+        <Button onClick={_scanLibrary} disabled={library.length <= 0}>
           {scanningSongs ? (
-            <StyledLoading width="100%" height="100%" type="bars"/>
+            <StyledLoading width="100%" height="100%" type="bars" />
           ) : (
             'Scan For Songs'
           )}
         </Button>
-        <Button onClick={_clearCache} warn={confirmClear}>
+        <Button
+          onClick={_clearCache}
+          warn={confirmClear}
+          disabled={library.length <= 0}
+        >
           {confirmClear ? 'You Sure?' : 'Clear Song Cache'}
         </Button>
       </div>

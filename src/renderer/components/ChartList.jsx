@@ -2,10 +2,11 @@ import React from 'react'
 import { connect } from 'react-redux'
 import Styled from 'styled-components'
 import ReactLoading from 'react-loading'
+import { toast } from 'react-toastify'
 
 import SongListing from './SongListing'
 
-import { downloadChart } from '../redux/actions'
+import { downloadChart, openPreferences } from '../redux/actions'
 
 const ChartListContainer = Styled.div`
   color: #DDDDDD;
@@ -30,8 +31,18 @@ const ChartList = ({
   charts,
   currentlyDownloading,
   downloadChart,
+  openPreferences,
   wasDownloaded,
+  libraryPath
 }) => {
+  const _downloadChart = (chart) => {
+    if (libraryPath.length > 0) {
+      downloadChart(chart)
+    } else {
+      toast.error(`Looks like you haven't set your library. You need to set one before you download anything.`)
+      openPreferences()
+    }
+  }
   if (isFetching) {
     return (
       <FetchingIndicator style={{ color: '#EEEEEE' }}>
@@ -49,7 +60,7 @@ const ChartList = ({
           wasDownloaded={
             chart.hashes && wasDownloaded.includes(chart.hashes.file)
           }
-          onDownloadClick={() => downloadChart(chart)}
+          onDownloadClick={() => _downloadChart(chart)}
         />
       ))}
     </ChartListContainer>
@@ -59,6 +70,7 @@ const ChartList = ({
 const mapDispatchToProps = dispatch => {
   return {
     downloadChart: chart => dispatch(downloadChart(chart)),
+    openPreferences: () => dispatch(openPreferences())
   }
 }
 
@@ -68,6 +80,7 @@ const mapStateToProps = state => {
     charts: state.charts.items,
     currentlyDownloading: state.downloads.currentlyDownloading,
     wasDownloaded: state.ui.wasDownloaded,
+    libraryPath: state.preferences.library
   }
 }
 
