@@ -19,13 +19,6 @@ export const startSongScan = createAction('startSongScan')
 export const songScanFinished = createAction('songScanFinished')
 export const songScanned = createAction('songScanned')
 export const clearCache = createAction('clearCache')
-export const skipNext = createAction('skipNext')
-
-export const searchNextCharts = query => {
-  return (dispatch, getState) => {
-    return dispatch(searchCharts(`${query}&from=${getState().charts.skip}`))
-  }
-}
 
 export const fetchLatestCharts = () => {
   return dispatch => {
