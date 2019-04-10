@@ -22,3 +22,17 @@ button {
   user-select: none;
   cursor: pointer;
 }
+
+::-webkit-scrollbar {
+  width: 12px;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #535353;
+}

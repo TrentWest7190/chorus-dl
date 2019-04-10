@@ -27,16 +27,23 @@ const Name = Styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 600px;
 `
 
 const Artist = Styled.span`
   font-size: 1em;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 const AlbumGenre = Styled.span`
   font-size: .75em;
   color: #AAAAAA;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 const Difficulty = Styled(({ className, diff, tier, name }) => {
@@ -179,7 +186,7 @@ const SongListing = Styled(
   user-select: none;
 
   display: grid;
-  grid-template-columns: 110px auto 150px;
+  grid-template-columns: 110px minmax(0px, auto) 150px;
   grid-column-gap: 10px;
 
   .info {
