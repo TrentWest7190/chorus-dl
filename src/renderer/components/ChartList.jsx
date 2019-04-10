@@ -10,7 +10,7 @@ const ChartListContainer = Styled.div`
   color: #DDDDDD;
 `
 
-const ChartList = ({ isFetching, charts, currentlyDownloading, downloadChart, wasDownloaded, dlCache }) => {
+const ChartList = ({ isFetching, charts, currentlyDownloading, downloadChart, wasDownloaded }) => {
   if (isFetching) {
     return <div style={{ color: '#EEEEEE' }}>Getting Songs...</div>
   }
@@ -21,7 +21,7 @@ const ChartList = ({ isFetching, charts, currentlyDownloading, downloadChart, wa
           key={chart.id}
           song={chart}
           isDownloading={currentlyDownloading.includes(chart.id)}
-          wasDownloaded={wasDownloaded.includes(chart.id) || dlCache.includes(chart.hashes.file)}
+          wasDownloaded={chart.hashes && wasDownloaded.includes(chart.hashes.file)}
           onDownloadClick={() => downloadChart(chart)}
         />
       ))}
@@ -40,8 +40,7 @@ const mapStateToProps = state => {
     isFetching: state.charts.isFetching,
     charts: state.charts.items,
     currentlyDownloading: state.downloads.currentlyDownloading,
-    wasDownloaded: state.downloads.wasDownloaded,
-    dlCache: state.dlCache
+    wasDownloaded: state.ui.wasDownloaded,
   }
 }
 

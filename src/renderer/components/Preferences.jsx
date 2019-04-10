@@ -2,11 +2,13 @@ import React, { useRef, useState } from 'react'
 import Styled, { keyframes } from 'styled-components'
 import { connect } from 'react-redux'
 import { remote, ipcRenderer } from 'electron'
+import ReactLoading from 'react-loading'
 
 import {
   saveLibraryPath,
   closePreferences,
   clearSongCache,
+  startSongScan,
 } from '../redux/actions'
 import eStore from 'common/electronStore'
 
@@ -62,7 +64,8 @@ const LibraryDisplay = Styled.div`
 const Button = Styled.button`
   width: 50%;
   height: 35px;
-  background-color: ${p => p.warn ? 'rgba(255, 121, 0, 0.7)' : 'rgba(255,255,255,0.2)'};
+  background-color: ${p =>
+    p.warn ? 'rgba(255, 121, 0, 0.7)' : 'rgba(255,255,255,0.2)'};
   border-radius: 20px;
   color: #DADADA;
   border: 0px;
@@ -74,12 +77,21 @@ const Button = Styled.button`
   }
 `
 
+const StyledLoading = Styled(ReactLoading)`
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+`
+
 const Preferences = ({
   library,
   show,
+  scanningSongs,
   saveLibraryPath,
   closePreferences,
   clearCache,
+  startSongScan,
 }) => {
   const [confirmClear, setConfirmClear] = useState(false)
   const inputEl = useRef(null)
@@ -98,6 +110,15 @@ const Preferences = ({
     setConfirmClear(false)
   }
 
+  const _scanLibrary = () => {
+    if (scanningSongs) {
+      return
+    } else {
+      startSongScan()
+      ipcRenderer.send('scan-library')
+    }
+  }
+
   return (
     <PreferencesContainer
       unmountOnExit
@@ -114,8 +135,12 @@ const Preferences = ({
         </Button>
       </div>
       <div>
-        <Button onClick={() => ipcRenderer.send('scan-library')}>
-          Scan For Songs
+        <Button onClick={_scanLibrary}>
+          {scanningSongs ? (
+            <StyledLoading width="100%" height="100%" type="bars"/>
+          ) : (
+            'Scan For Songs'
+          )}
         </Button>
         <Button onClick={_clearCache} warn={confirmClear}>
           {confirmClear ? 'You Sure?' : 'Clear Song Cache'}
@@ -137,11 +162,13 @@ const mapDispatchToProps = dispatch => ({
   saveLibraryPath: newPath => dispatch(saveLibraryPath(newPath)),
   closePreferences: () => dispatch(closePreferences()),
   clearCache: () => dispatch(clearSongCache()),
+  startSongScan: () => dispatch(startSongScan()),
 })
 
 const mapStateToProps = state => ({
   library: state.preferences.library,
   show: state.ui.preferencesOpen,
+  scanningSongs: state.ui.scanningSongs,
 })
 
 export default connect(

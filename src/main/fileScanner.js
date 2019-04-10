@@ -28,24 +28,23 @@ ipcMain.on('scan-library', (ev, arg) => {
     Store.set('dlCache', [...dlCache, hash])
     ev.sender.send('file-scanned', hash)
   }
-  find.file(/\.chart/i,Store.get('library'), files => {
-    files.forEach(file => {
-      fs.readFile(file)
-      .then((file) => {
-        const chart = fileToChart(file)
-        const hash = getMD5(chart)
-        fileScanned(hash)
-      })
-    })
+
+  find.file(/\.chart/i,Store.get('library'), async files => {
+    for (const index in files) {
+      const fileData = await fs.readFile(files[index])
+      const chart = fileToChart(fileData)
+      const hash = getMD5(chart)
+      fileScanned(hash)
+    }
+    ev.sender.send('scan-partial')
   })
 
-  find.file(/\.mid/i,Store.get('library'), files => {
-    files.forEach(file => {
-      fs.readFile(file)
-      .then((file) => {
-        const hash = getMD5(file)
-        fileScanned(hash)
-      })
-    })
+  find.file(/\.mid/i,Store.get('library'), async files => {
+    for (const index in files) {
+      const fileData = await fs.readFile(files[index])
+      const hash = getMD5(fileData)
+      fileScanned(hash)
+    }
+    ev.sender.send('scan-partial')
   })
 })

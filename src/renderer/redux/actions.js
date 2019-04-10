@@ -15,8 +15,17 @@ export const closeModal = createAction('closeModal')
 export const openPreferences = createAction('openPreferences')
 export const closePreferences = createAction('closePreferences')
 export const updateLibrary = createAction('updateLibrary')
+export const startSongScan = createAction('startSongScan')
+export const songScanFinished = createAction('songScanFinished')
 export const songScanned = createAction('songScanned')
 export const clearCache = createAction('clearCache')
+export const skipNext = createAction('skipNext')
+
+export const searchNextCharts = query => {
+  return (dispatch, getState) => {
+    return dispatch(searchCharts(`${query}&from=${getState().charts.skip}`))
+  }
+}
 
 export const fetchLatestCharts = () => {
   return dispatch => {
@@ -34,7 +43,7 @@ export const fetchLatestCharts = () => {
   }
 }
 
-export const searchCharts = (query) => {
+export const searchCharts = query => {
   return dispatch => {
     dispatch(requestCharts())
 
@@ -50,7 +59,7 @@ export const searchCharts = (query) => {
   }
 }
 
-export const downloadChart = ({directLinks, id, artist, name, hashes}) => {
+export const downloadChart = ({ directLinks, id, artist, name, hashes }) => {
   return dispatch => {
     dispatch(requestDownload(id))
     ipcRenderer.send('request-download', {
@@ -58,12 +67,12 @@ export const downloadChart = ({directLinks, id, artist, name, hashes}) => {
       id,
       artist,
       name,
-      hashes
+      hashes,
     })
   }
 }
 
-export const saveLibraryPath = (newPath) => {
+export const saveLibraryPath = newPath => {
   return dispatch => {
     dispatch(updateLibrary(newPath))
     ElectronStore.set('library', newPath)
