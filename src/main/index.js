@@ -13,6 +13,7 @@ const store = new Store();
 store.set('test', true)
 
 import './downloadManager'
+import './fileScanner'
 
 
 const isDevelopment = process.env.NODE_ENV !== 'production'

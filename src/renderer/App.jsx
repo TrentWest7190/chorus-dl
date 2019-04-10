@@ -31,6 +31,7 @@ const App = ({ modalOpen, ModalComponent, closeModal }) => {
   if (modalOpen) Modal = Modals[ModalComponent]
   return (
     <div>
+      <Preferences/>
       {modalOpen && (
         <ModalContainer onClick={closeModal}>
           <Modal/>

@@ -1,9 +1,14 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import Styled, { keyframes } from 'styled-components'
 import { connect } from 'react-redux'
-import { remote } from 'electron'
+import { remote, ipcRenderer } from 'electron'
 
-import { saveLibraryPath, closeModal } from '../redux/actions'
+import {
+  saveLibraryPath,
+  closePreferences,
+  clearSongCache,
+} from '../redux/actions'
+import eStore from 'common/electronStore'
 
 const fallDown = keyframes`
   from {
@@ -29,8 +34,18 @@ const PreferencesContainer = Styled.div`
   z-index: 3;
   animation: ${fallDown} .2s ease-out;
   user-select: none;
-  position: relative;
+  position: absolute;
   margin-left: 120px;
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s ${p => (p.show ? 'ease-out' : 'ease-in')};
+
+  transform: ${p => (p.show ? 'translateY(0)' : 'translateY(-100vh)')};
+
+  div {
+    margin-bottom: 10px;
+    display: flex;
+  }
 `
 
 const LibraryDisplay = Styled.div`
@@ -45,9 +60,9 @@ const LibraryDisplay = Styled.div`
 `
 
 const Button = Styled.button`
-  width: 140px;
+  width: 50%;
   height: 35px;
-  background-color: rgba(255,255,255,0.2);
+  background-color: ${p => p.warn ? 'rgba(255, 121, 0, 0.7)' : 'rgba(255,255,255,0.2)'};
   border-radius: 20px;
   color: #DADADA;
   border: 0px;
@@ -59,18 +74,54 @@ const Button = Styled.button`
   }
 `
 
-const Preferences = ({ library, saveLibraryPath, closeModal }) => {
+const Preferences = ({
+  library,
+  show,
+  saveLibraryPath,
+  closePreferences,
+  clearCache,
+}) => {
+  const [confirmClear, setConfirmClear] = useState(false)
   const inputEl = useRef(null)
+
+  const _clearCache = () => {
+    if (confirmClear) {
+      clearCache()
+      setConfirmClear(false)
+    } else {
+      setConfirmClear(true)
+    }
+  }
+
+  const _closePreferences = () => {
+    closePreferences()
+    setConfirmClear(false)
+  }
+
   return (
-    <PreferencesContainer unmountOnExit onClick={e => e.stopPropagation()}>
-      <CloseButton onClick={closeModal}>X</CloseButton>
+    <PreferencesContainer
+      unmountOnExit
+      onClick={e => e.stopPropagation()}
+      show={show}
+    >
+      <CloseButton onClick={_closePreferences}>X</CloseButton>
       <span>Chart Library Folder:</span>
       <LibraryDisplay>{library}</LibraryDisplay>
       <div>
         <Button onClick={() => inputEl.current.click()}>Choose Folder</Button>
-        <Button onClick={() => remote.shell.openItem(library)}>Open Folder</Button>
+        <Button onClick={() => remote.shell.openItem(library)}>
+          Open Folder
+        </Button>
       </div>
-      <Button>Scan For Songs</Button>
+      <div>
+        <Button onClick={() => ipcRenderer.send('scan-library')}>
+          Scan For Songs
+        </Button>
+        <Button onClick={_clearCache} warn={confirmClear}>
+          {confirmClear ? 'You Sure?' : 'Clear Song Cache'}
+        </Button>
+      </div>
+
       <input
         style={{ display: 'none' }}
         type="file"
@@ -84,11 +135,13 @@ const Preferences = ({ library, saveLibraryPath, closeModal }) => {
 
 const mapDispatchToProps = dispatch => ({
   saveLibraryPath: newPath => dispatch(saveLibraryPath(newPath)),
-  closeModal: () => dispatch(closeModal()),
+  closePreferences: () => dispatch(closePreferences()),
+  clearCache: () => dispatch(clearSongCache()),
 })
 
 const mapStateToProps = state => ({
   library: state.preferences.library,
+  show: state.ui.preferencesOpen,
 })
 
 export default connect(

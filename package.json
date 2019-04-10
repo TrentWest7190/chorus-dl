@@ -1,10 +1,11 @@
 {
-  "name": "chorus",
+  "name": "chorus-dl",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "electron-webpack dev"
+    "dev": "electron-webpack dev",
+    "compile": "electron-webpack"
   },
   "author": "",
   "license": "ISC",
@@ -20,7 +21,9 @@
     "@fknop/node-unrar": "^1.1.0",
     "electron-dl": "^1.14.0",
     "electron-store": "^3.1.0",
+    "find": "^0.3.0",
     "fs-extra": "^7.0.1",
+    "iconv-lite": "^0.4.24",
     "node-fetch": "^2.3.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",

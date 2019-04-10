@@ -2,7 +2,7 @@ import React from 'react'
 import useDebouncedCallback from 'use-debounce/lib/callback'
 import { connect } from 'react-redux'
 import Styled from 'styled-components'
-import { searchCharts, openModal } from '../redux/actions'
+import { searchCharts, openPreferences } from '../redux/actions'
 
 const ToolbarContainer = Styled.div`
   height: 50px;
@@ -55,7 +55,7 @@ const Toolbar = ({ search, openPreferences }) => {
 const mapDispatchToProps = dispatch => {
   return {
     search: query => dispatch(searchCharts(query)),
-    openPreferences: () => dispatch(openModal('Preferences'))
+    openPreferences: () => dispatch(openPreferences())
   }
 }
 

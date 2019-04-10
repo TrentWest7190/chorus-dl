@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron'
 import { createAction } from 'redux-starter-kit'
 import fetch from 'node-fetch'
 
-import ElectronStore from '../electronStore'
+import ElectronStore from 'common/electronStore'
 
 export const requestCharts = createAction('requestCharts')
 export const recieveCharts = createAction('recieveCharts')
@@ -12,7 +12,11 @@ export const updateDownloadProgress = createAction('updateDownloadProgress')
 export const downloadComplete = createAction('downloadComplete')
 export const openModal = createAction('openModal')
 export const closeModal = createAction('closeModal')
+export const openPreferences = createAction('openPreferences')
+export const closePreferences = createAction('closePreferences')
 export const updateLibrary = createAction('updateLibrary')
+export const songScanned = createAction('songScanned')
+export const clearCache = createAction('clearCache')
 
 export const fetchLatestCharts = () => {
   return dispatch => {
@@ -46,14 +50,15 @@ export const searchCharts = (query) => {
   }
 }
 
-export const downloadChart = ({directLinks, id, artist, name}) => {
+export const downloadChart = ({directLinks, id, artist, name, hashes}) => {
   return dispatch => {
     dispatch(requestDownload(id))
     ipcRenderer.send('request-download', {
       directLinks,
       id,
       artist,
-      name
+      name,
+      hashes
     })
   }
 }
@@ -62,5 +67,12 @@ export const saveLibraryPath = (newPath) => {
   return dispatch => {
     dispatch(updateLibrary(newPath))
     ElectronStore.set('library', newPath)
+  }
+}
+
+export const clearSongCache = () => {
+  return dispatch => {
+    ElectronStore.set('dlCache', [])
+    dispatch(clearCache())
   }
 }

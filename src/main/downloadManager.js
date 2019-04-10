@@ -4,11 +4,20 @@ import unzipper from 'unzipper'
 import fs from 'fs-extra'
 import unrar from '@fknop/node-unrar'
 
-import Store from './electronStore'
+import Store from 'common/electronStore'
 
 ipcMain.on('request-download', async (ev, arg) => {
   const isArchived = arg.directLinks.archive !== undefined
   const libraryPath = Store.get('library')
+
+  const sendComplete = () => {
+    const dlCache = Store.get('dlCache', [])
+    Store.set('dlCache', [...dlCache, arg.hashes.file])
+    ev.sender.send('download-complete', {
+      id: arg.id,
+      hash: arg.hashes.file,
+    })
+  }
 
   if (isArchived) {
     download(BrowserWindow.getFocusedWindow(), arg.directLinks.archive, {
@@ -24,9 +33,7 @@ ipcMain.on('request-download', async (ev, arg) => {
             dest: `${libraryPath}`,
           })
           .then(res => {
-            fs.remove(zipSavePath).then(() =>
-              ev.sender.send('download-complete', arg.id),
-            )
+            fs.remove(zipSavePath).then(sendComplete)
           })
       } else {
         const unzipwritestream = unzipper.Extract({
@@ -38,9 +45,7 @@ ipcMain.on('request-download', async (ev, arg) => {
         )
 
         unzipwritestream.on('close', () => {
-          fs.remove(zipSavePath).then(() =>
-            ev.sender.send('download-complete', arg.id),
-          )
+          fs.remove(zipSavePath).then(sendComplete)
         })
       }
     })
@@ -53,7 +58,7 @@ ipcMain.on('request-download', async (ev, arg) => {
         saveAs: false,
       })
     }
-    ev.sender.send('download-complete', arg.id)
+    sendComplete()
   }
 })
 

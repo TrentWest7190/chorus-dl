@@ -8,10 +8,14 @@ import {
   downloadComplete,
   openModal,
   closeModal,
-  updateLibrary
+  updateLibrary,
+  songScanned,
+  clearCache,
+  openPreferences,
+  closePreferences
 } from '../actions'
 
-import ElectronStore from '../../electronStore'
+import ElectronStore from 'common/electronStore'
 
 const initialState = {
   downloads: {
@@ -25,11 +29,13 @@ const initialState = {
   },
   ui: {
     modal: '',
-    modalOpen: false
+    modalOpen: false,
+    preferencesOpen: false
   },
   preferences: {
-    library: ElectronStore.get('library')
-  }
+    library: ElectronStore.get('library', '')
+  },
+  dlCache: ElectronStore.get('dlCache', [])
 }
 
 export default createReducer(initialState, {
@@ -56,9 +62,10 @@ export default createReducer(initialState, {
   },
   [downloadComplete]: (state, action) => {
     state.downloads.currentlyDownloading = state.downloads.currentlyDownloading.filter(
-      dl => dl !== action.payload,
+      dl => dl !== action.payload.id,
     )
-    state.downloads.wasDownloaded.push(action.payload)
+    state.dlCache.push(action.payload.hash)
+    state.downloads.wasDownloaded.push(action.payload.id)
   },
   [openModal]: (state, action) => {
     state.ui.modalOpen = true
@@ -68,7 +75,19 @@ export default createReducer(initialState, {
     state.ui.modal = ''
     state.ui.modalOpen = false
   },
+  [openPreferences]: (state) => {
+    state.ui.preferencesOpen = true
+  },
+  [closePreferences]: (state) => {
+    state.ui.preferencesOpen = false
+  },
   [updateLibrary]: (state, action) => {
     state.preferences.library = action.payload
+  },
+  [songScanned]: (state, action) => {
+    state.dlCache.push(action.payload)
+  },
+  [clearCache]: (state) => {
+    state.dlCache = []
   }
 })
