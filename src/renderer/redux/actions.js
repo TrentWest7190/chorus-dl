@@ -19,6 +19,7 @@ export const startSongScan = createAction('startSongScan')
 export const songScanFinished = createAction('songScanFinished')
 export const songScanned = createAction('songScanned')
 export const clearCache = createAction('clearCache')
+export const setSearchMode = createAction('setSearchMode')
 
 export const fetchLatestCharts = () => {
   return dispatch => {
@@ -37,10 +38,10 @@ export const fetchLatestCharts = () => {
 }
 
 export const searchCharts = query => {
-  return dispatch => {
+  return (dispatch, getState) => {
     dispatch(requestCharts())
 
-    return fetch(`https://chorus.fightthe.pw/api/search?query=${query}`)
+    return fetch(`https://chorus.fightthe.pw/api/${getState().charts.mode}?query=${query}`)
       .then(
         response => response.json(),
         error => console.log('Error searching charts: ', error),

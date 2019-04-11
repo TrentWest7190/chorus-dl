@@ -24,6 +24,7 @@ const ChartListContainer = Styled.div`
   width: 100%;
   height: calc(100vh - 50px);
   overflow-y: scroll;
+  overflow-x: hidden;
 `
 
 const App = ({ modalOpen, ModalComponent, closeModal }) => {

@@ -14,7 +14,8 @@ import {
   openPreferences,
   closePreferences,
   startSongScan,
-  songScanFinished
+  songScanFinished,
+  setSearchMode
 } from '../actions'
 
 import ElectronStore from 'common/electronStore'
@@ -27,6 +28,7 @@ const initialState = {
   charts: {
     skip: 0,
     isFetching: false,
+    mode: 'latest',
     items: [],
   },
   ui: {
@@ -98,5 +100,8 @@ export default createReducer(initialState, {
   [songScanFinished]: (state) => {
     state.ui.scanningSongs = false
     state.ui.wasDownloaded = state.dlCache
+  },
+  [setSearchMode]: (state, action) => {
+    state.charts.mode = action.payload
   }
 })

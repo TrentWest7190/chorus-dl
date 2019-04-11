@@ -5,6 +5,7 @@ import Styled from 'styled-components'
 import {
   searchCharts,
   openPreferences,
+  setSearchMode
 } from '../redux/actions'
 
 const ToolbarContainer = Styled.div`
@@ -28,13 +29,20 @@ const Search = Styled.input`
   width: 200px;
 
   ::placeholder {
-    color: #E0E0E0;
+    color: #909090;
   }
 `
 
 const SearchContainer = Styled.div`
   display: flex;
   justify-self: end;
+  * {
+    margin-right: 10px;
+
+    :last-child {
+      margin-right: 0px;
+    }
+  }
 `
 
 const Button = Styled.button`
@@ -48,13 +56,21 @@ const Button = Styled.button`
   :hover {
     background-color: #777777;
   }
+
+  ${p => p.disabled && `
+    opacity: .5;
+    cursor: default;
+    :hover {
+      background-color: #535353;
+    }
+  `}
 `
 
 const NextBack = Styled(
   ({ className, onNext, onBack, disableBack, disableNext }) => (
     <div className={className}>
-      <Button onClick={disableBack ? () => {} : onBack}>{'<'}</Button>
-      <Button onClick={disableNext ? () => {} : onNext}>{'>'}</Button>
+      <Button onClick={disableBack ? () => {} : onBack} disabled={disableBack}>{'<'}</Button>
+      <Button onClick={disableNext ? () => {} : onNext} disabled={disableNext}>{'>'}</Button>
     </div>
   ),
 )`
@@ -64,51 +80,42 @@ const NextBack = Styled(
     :first-child {
       border-radius: 15px 0 0 15px;
       margin-right: 2px;
-      ${p =>
-        p.disableBack &&
-        `
-        opacity: .5;
-        cursor: default;
-        :hover {
-          background-color: #535353;
-        }
-      `}
     }
   
     :last-child {
       border-radius: 0 15px 15px 0;
-      ${p =>
-        p.disableNext &&
-        `
-        opacity: .5;
-        cursor: default;
-        :hover {
-          background-color: #535353;
-        }
-      `}
     }
   }
 `
 
-const Toolbar = ({ isFetching, search, openPreferences, searchNextCharts }) => {
+const Toolbar = ({ isFetching, search, openPreferences, searchNextCharts, setSearchMode }) => {
   const [searchValue, setSearchValue] = useState('')
   const [skip, setSkip] = useState(0)
   const [_onChange] = useDebouncedCallback(query => {
+    setSearchMode('search')
     setSearchValue(query)
     if (query.length > 0) search(query)
-  }, 200)
+  }, 400)
   const _onNext = () => {
     search(`${searchValue}&from=${skip + 20}`)
     setSkip(skip + 20)
   }
   const _onBack = () => {
-    search(`${searchValue}&from=${skip - 20}`)
-    setSkip(skip - 20)
+    const newSkip = skip - 20
+    search(`${searchValue}${newSkip <= 0 ? `` : `&from=${newSkip}`}`)
+    setSkip(newSkip)
   }
+
+  const _getLatest = () => {
+    setSearchMode('latest')
+    search()
+  }
+
   return (
     <ToolbarContainer>
       <Button onClick={openPreferences}>Preferences</Button>
       <SearchContainer>
+        <Button onClick={() => _getLatest()}>Latest</Button>
         <Search
           onChange={ev => _onChange(ev.target.value)}
           placeholder="Search..."
@@ -129,6 +136,7 @@ const mapDispatchToProps = dispatch => {
     search: query => dispatch(searchCharts(query)),
     openPreferences: () => dispatch(openPreferences()),
     searchNextCharts: query => dispatch(searchNextCharts(query)),
+    setSearchMode: mode => dispatch(setSearchMode(mode))
   }
 }
 

@@ -201,6 +201,10 @@ const SongListing = Styled(
     line-height: 1.6;
   }
 
+  :nth-child(even) {
+    background-color: rgb(17, 17, 17);
+  }
+
   :nth-child(odd) {
     background-color: #222222;
   }

@@ -1,11 +1,11 @@
 import { configureStore } from 'redux-starter-kit'
 import rootReducer from './reducers'
-import { fetchLatestCharts } from './actions'
+import { searchCharts } from './actions'
 
 const store = configureStore({
   reducer: rootReducer
 })
 
-store.dispatch(fetchLatestCharts())
+store.dispatch(searchCharts())
 
 export default store
