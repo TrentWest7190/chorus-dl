@@ -1,19 +1,22 @@
 {
   "name": "chorus-dl",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Download Clone Hero charts from chorus.fightthe.pw to your song library.",
   "main": "index.js",
   "scripts": {
     "dev": "electron-webpack dev",
-    "compile": "electron-webpack"
+    "compile": "electron-webpack",
+    "pack": "electron-builder --dir",
+    "dist": "yarn compile && electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
-  "author": "",
+  "author": "Trent West",
   "license": "ISC",
   "devDependencies": {
     "@babel/preset-react": "^7.0.0",
     "electron": "^4.1.4",
+    "electron-builder": "^20.39.0",
     "electron-devtools-installer": "^2.2.4",
-    "electron-rebuild": "^1.8.4",
     "electron-webpack": "^2.6.2",
     "webpack": "^4.29.6"
   },
@@ -28,19 +31,26 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-loading": "^2.0.3",
-    "react-redux": "^6.0.1",
+    "react-redux": "^7.0.1",
     "react-toastify": "^5.0.0",
     "react-transition-group": "^2.9.0",
     "redux": "^4.0.1",
     "redux-starter-kit": "^0.4.3",
+    "source-map-support": "^0.5.12",
     "styled-components": "^4.2.0",
     "styled-transition-group": "^2.0.0",
     "unzipper": "^0.9.11",
     "use-debounce": "^1.1.1"
   },
   "electronWebpack": {
+    "whiteListedModules": [
+      "react-redux"
+    ],
     "renderer": {
       "webpackConfig": "webpack.renderer.additions.js"
     }
+  },
+  "build": {
+    "appId": "chorus.dl"
   }
 }

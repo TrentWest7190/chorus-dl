@@ -3,14 +3,9 @@
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-  REDUX_DEVTOOLS,
-} from 'electron-devtools-installer'
 
 import './downloadManager'
 import './fileScanner'
-
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -21,13 +16,22 @@ function createMainWindow() {
   const window = new BrowserWindow({
     width: 950,
     height: 785,
-    title: "Chorus-DL"
+    title: 'Chorus-DL',
   })
 
   window.setMenu(null)
 
   if (isDevelopment) {
+    const {
+      default: installExtension,
+      REACT_DEVELOPER_TOOLS,
+      REDUX_DEVTOOLS,
+    } = require('electron-devtools-installer')
     window.webContents.openDevTools()
+
+    installExtension(REACT_DEVELOPER_TOOLS).then(() =>
+      installExtension(REDUX_DEVTOOLS),
+    )
   }
 
   if (isDevelopment) {
@@ -45,10 +49,6 @@ function createMainWindow() {
   window.on('closed', () => {
     mainWindow = null
   })
-
-  installExtension(REACT_DEVELOPER_TOOLS).then(() =>
-    installExtension(REDUX_DEVTOOLS),
-  )
 
   window.webContents.on('devtools-opened', () => {
     window.focus()
