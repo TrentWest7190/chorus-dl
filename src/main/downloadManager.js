@@ -5,10 +5,12 @@ import fs from 'fs-extra'
 import unrar from '@fknop/node-unrar'
 
 import Store from 'common/electronStore'
+import { replacer } from 'common/saveFormatParser'
 
 ipcMain.on('request-download', async (ev, arg) => {
   const isArchived = arg.directLinks.archive !== undefined
   const libraryPath = Store.get('library')
+  const parsedSaveFormat = replacer(Store.get('saveFormat'), arg).replace(/:/g, '꞉')
 
   const sendComplete = () => {
     const dlCache = Store.get('dlCache', [])
@@ -25,19 +27,23 @@ ipcMain.on('request-download', async (ev, arg) => {
       onStarted: () => ev.sender.send('download-started', arg.id),
     }).then(dl => {
       const zipSavePath = dl.getSavePath()
+      const zipFilename = dl.getFilename()
+      const resultFolderName = zipFilename.slice(0, -4)
+      const tempUnpkgFolder = `${libraryPath}\\&CHORUSDLTEMP&`
+      fs.mkdirsSync(tempUnpkgFolder)
 
-      if (dl.getFilename().match(/\.rar$/)) {
+      if (zipFilename.match(/\.rar$/)) {
         unrar
           .extract(zipSavePath, {
             openMode: 1,
-            dest: `${libraryPath}`,
+            dest: tempUnpkgFolder,
           })
-          .then(res => {
-            fs.remove(zipSavePath).then(sendComplete)
-          })
+          .then(res => fs.move(`${tempUnpkgFolder}\\${resultFolderName}`, `${libraryPath}\\${parsedSaveFormat}`))
+          .then(() => fs.remove(zipSavePath))
+          .then(sendComplete)
       } else {
         const unzipwritestream = unzipper.Extract({
-          path: libraryPath,
+          path: tempUnpkgFolder,
         })
         fs.createReadStream(zipSavePath).pipe(
           unzipwritestream,
@@ -45,7 +51,9 @@ ipcMain.on('request-download', async (ev, arg) => {
         )
 
         unzipwritestream.on('close', () => {
-          fs.remove(zipSavePath).then(sendComplete)
+          fs.move(`${tempUnpkgFolder}\\${resultFolderName}`, `${libraryPath}\\${parsedSaveFormat}`)
+          .then(() => fs.remove(zipSavePath))
+          .then(sendComplete)
         })
       }
     })
@@ -53,7 +61,7 @@ ipcMain.on('request-download', async (ev, arg) => {
     for (const key in arg.directLinks) {
       ev.sender.send('download-started', arg.id)
       await download(BrowserWindow.getFocusedWindow(), arg.directLinks[key], {
-        directory: `${libraryPath}\\${arg.artist} - ${arg.name}`,
+        directory: `${libraryPath}\\${parsedSaveFormat}`,
         filename: getTrueName(key),
         saveAs: false,
       })

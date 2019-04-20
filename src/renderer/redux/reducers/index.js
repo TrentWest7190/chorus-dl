@@ -15,7 +15,8 @@ import {
   closePreferences,
   startSongScan,
   songScanFinished,
-  setSearchMode
+  setSearchMode,
+  setInvalidSaveFormat
 } from '../actions'
 
 import ElectronStore from 'common/electronStore'
@@ -39,7 +40,9 @@ const initialState = {
     wasDownloaded: ElectronStore.get('dlCache', [])
   },
   preferences: {
-    library: ElectronStore.get('library', '')
+    library: ElectronStore.get('library', ''),
+    saveFormat: ElectronStore.get('saveFormat', ':artist - :name'),
+    invalidSaveFormat: false
   },
   dlCache: ElectronStore.get('dlCache', [])
 }
@@ -103,5 +106,8 @@ export default createReducer(initialState, {
   },
   [setSearchMode]: (state, action) => {
     state.charts.mode = action.payload
+  },
+  [setInvalidSaveFormat]: (state, action) => {
+    state.preferences.invalidSaveFormat = action.payload
   }
 })

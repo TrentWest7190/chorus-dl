@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import Styled, { keyframes } from 'styled-components'
+import Styled from 'styled-components'
 import ReactLoading from 'react-loading'
 import { toast } from 'react-toastify'
 import transition from 'styled-transition-group'
@@ -51,16 +51,24 @@ const ChartList = ({
   openPreferences,
   wasDownloaded,
   libraryPath,
+  invalidSaveFormat
 }) => {
   const _downloadChart = chart => {
-    if (libraryPath.length > 0) {
-      downloadChart(chart)
-    } else {
+    if (invalidSaveFormat) {
+      toast.error(
+        `You need to set a valid save format before you can download anything!`
+      )
+      openPreferences()
+    }
+    if (libraryPath.length <= 0) {
       toast.error(
         `Looks like you haven't set your library. You need to set one before you download anything.`,
       )
       openPreferences()
     }
+    if (!invalidSaveFormat && libraryPath.length > 0) {
+      downloadChart(chart)
+    } 
   }
   return (
     <>
@@ -97,8 +105,9 @@ const mapStateToProps = state => {
     isFetching: state.charts.isFetching,
     charts: state.charts.items,
     currentlyDownloading: state.downloads.currentlyDownloading,
-    wasDownloaded: state.ui.wasDownloaded,
+    wasDownloaded: state.dlCache,
     libraryPath: state.preferences.library,
+    invalidSaveFormat: state.preferences.invalidSaveFormat
   }
 }
 

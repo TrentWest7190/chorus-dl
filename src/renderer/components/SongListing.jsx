@@ -123,6 +123,16 @@ const StyledLoading = Styled(ReactLoading)`
   border-radius: 8px;
 `
 
+const Duration = Styled.span`
+  font-size: .4em;
+  color: #AAAAAA;
+`
+
+const secondsToMinuteSecond = seconds =>
+  `${Math.floor(seconds / 60)}:${
+    seconds % 60 < 10 ? '0' + (seconds % 60) : seconds % 60
+  }`
+
 const SongListing = Styled(
   ({ song, className, onDownloadClick, isDownloading, wasDownloaded }) => {
     const [isHovered, setHovered] = useState(false)
@@ -156,7 +166,10 @@ const SongListing = Styled(
       >
         <AlbumArt albumArt={albumArt}>{artOverlay}</AlbumArt>
         <div className="info">
-          <Name>{song.name}</Name>
+          <Name>
+            {song.name}{' '}
+            <Duration>{secondsToMinuteSecond(song.length)}</Duration>
+          </Name>
           <Artist>{song.artist}</Artist>
           <AlbumGenre>
             {song.album} {song.year && `(${song.year})`}

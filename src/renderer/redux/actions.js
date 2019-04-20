@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron'
 import { createAction } from 'redux-starter-kit'
+import { toast } from 'react-toastify'
 import fetch from 'node-fetch'
 
 import ElectronStore from 'common/electronStore'
@@ -20,6 +21,8 @@ export const songScanFinished = createAction('songScanFinished')
 export const songScanned = createAction('songScanned')
 export const clearCache = createAction('clearCache')
 export const setSearchMode = createAction('setSearchMode')
+export const setSaveFormat = createAction('setSaveFormat')
+export const setInvalidSaveFormat = createAction('setInvalidSaveFormat')
 
 export const fetchLatestCharts = () => {
   return dispatch => {
@@ -53,16 +56,10 @@ export const searchCharts = query => {
   }
 }
 
-export const downloadChart = ({ directLinks, id, artist, name, hashes }) => {
+export const downloadChart = (chart) => {
   return dispatch => {
-    dispatch(requestDownload(id))
-    ipcRenderer.send('request-download', {
-      directLinks,
-      id,
-      artist,
-      name,
-      hashes,
-    })
+    dispatch(requestDownload(chart.id))
+    ipcRenderer.send('request-download', chart)
   }
 }
 
@@ -73,9 +70,18 @@ export const saveLibraryPath = newPath => {
   }
 }
 
+export const saveSaveFormat = newFormat => {
+  return dispatch => {
+    dispatch(setInvalidSaveFormat(false))
+    dispatch(setSaveFormat(newFormat))
+    ElectronStore.set('saveFormat', newFormat)
+  }
+}
+
 export const clearSongCache = () => {
   return dispatch => {
     ElectronStore.set('dlCache', [])
     dispatch(clearCache())
+    toast.success('Cache cleared!')
   }
 }

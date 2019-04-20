@@ -3,14 +3,17 @@ import Styled, { keyframes } from 'styled-components'
 import { connect } from 'react-redux'
 import { remote, ipcRenderer } from 'electron'
 import ReactLoading from 'react-loading'
+import { toast } from 'react-toastify'
+import { parseSaveFormat } from 'common/saveFormatParser'
 
 import {
   saveLibraryPath,
   closePreferences,
   clearSongCache,
   startSongScan,
+  saveSaveFormat,
+  setInvalidSaveFormat,
 } from '../redux/actions'
-import eStore from 'common/electronStore'
 
 const fallDown = keyframes`
   from {
@@ -28,7 +31,7 @@ const CloseButton = Styled.span`
 `
 
 const PreferencesContainer = Styled.div`
-  width: 425px;
+  width: 475px;
   border-radius: 0 0 15px 15px;
   background-color: rgba(50, 50, 50, .95);
   padding: 30px 20px 20px 20px;
@@ -92,6 +95,27 @@ const StyledLoading = Styled(ReactLoading)`
   }
 `
 
+const ClearCacheWarning = Styled.div`
+  user-select: none;
+`
+
+const SaveLocationEditor = Styled.input`
+  height: 30px;
+  border-radius: 15px;
+  border: 0px;
+  padding-left: 15px;
+  background-color: ${({ invalid }) =>
+    invalid ? 'rgba(255, 100, 100, 0.8)' : '#535353'};
+  outline: none;
+  color: #EEEEEE;
+  margin-right: 5px;
+  width: 100%;
+
+  ::placeholder {
+    color: #909090;
+  }
+`
+
 const Preferences = ({
   library,
   show,
@@ -100,39 +124,87 @@ const Preferences = ({
   closePreferences,
   clearCache,
   startSongScan,
+  saveSaveFormat,
+  saveFormat,
+  setInvalidSaveFormat,
+  invalidSaveFormat,
 }) => {
-  const [confirmClear, setConfirmClear] = useState(false)
+  const [localSaveFormat, setFormat] = useState(saveFormat)
   const inputEl = useRef(null)
 
   const _clearCache = () => {
-    if (confirmClear) {
-      clearCache()
-      setConfirmClear(false)
-    } else {
-      setConfirmClear(true)
-    }
+    toast.warn(
+      <ClearCacheWarning>
+        <div>
+          Are you sure you want to do this? All songs will appear as not being
+          downloaded, and you'll have to rescan your library to add them back.
+        </div>
+        <button
+          onClick={() => {
+            toast.dismiss()
+            clearCache()
+          }}
+        >
+          Hit it, chief
+        </button>
+      </ClearCacheWarning>,
+      {
+        autoClose: false,
+        closeOnClick: false,
+      },
+    )
   }
 
   const _closePreferences = () => {
-    closePreferences()
-    setConfirmClear(false)
+    if (invalidSaveFormat) {
+      toast.error(
+        `You need to set a valid save format, or else you can't download anything!`,
+      )
+    } else {
+      closePreferences()
+    }
   }
 
   const _scanLibrary = () => {
-    if (scanningSongs) {
-      return
+    toast.warn(
+      <ClearCacheWarning>
+        <div>
+          This feature is kind of expiremental. It might not work exactly right
+          and if you have a lot of songs, it'll probably take a while and the
+          program might go unresponsive several times during the process or it
+          might even crash!
+        </div>
+        <button
+          onClick={() => {
+            toast.dismiss()
+            startSongScan()
+            ipcRenderer.send('scan-library')
+          }}
+        >
+          Do it anyway.
+        </button>
+      </ClearCacheWarning>,
+      {
+        autoClose: false,
+        closeOnClick: false,
+      },
+    )
+  }
+
+  const _onSaveLocationBlur = () => {
+    const parsed = parseSaveFormat(localSaveFormat)
+    if (parsed.error) {
+      parsed.errorMsgs.forEach(msg => {
+        toast.error(msg)
+      })
+      setInvalidSaveFormat(true)
     } else {
-      startSongScan()
-      ipcRenderer.send('scan-library')
+      saveSaveFormat(localSaveFormat)
     }
   }
 
   return (
-    <PreferencesContainer
-      unmountOnExit
-      onClick={e => e.stopPropagation()}
-      show={show}
-    >
+    <PreferencesContainer onClick={e => e.stopPropagation()} show={show}>
       <CloseButton onClick={_closePreferences}>X</CloseButton>
       <span>Chart Library Folder:</span>
       <LibraryDisplay>{library}</LibraryDisplay>
@@ -153,14 +225,22 @@ const Preferences = ({
             'Scan For Songs'
           )}
         </Button>
-        <Button
-          onClick={_clearCache}
-          warn={confirmClear}
-          disabled={library.length <= 0}
-        >
-          {confirmClear ? 'You Sure?' : 'Clear Song Cache'}
+        <Button onClick={_clearCache} disabled={library.length <= 0}>
+          Clear Song Cache
         </Button>
       </div>
+      <span>Song Saving Structure</span>
+      <div>
+        <SaveLocationEditor
+          value={localSaveFormat}
+          onChange={e => setFormat(e.target.value)}
+          onBlur={_onSaveLocationBlur}
+          invalid={invalidSaveFormat}
+        />
+      </div>
+      <span style={{ fontSize: '.75em' }}>
+        Valid fields are artist, album, genre, charter, name, year
+      </span>
 
       <input
         style={{ display: 'none' }}
@@ -178,12 +258,16 @@ const mapDispatchToProps = dispatch => ({
   closePreferences: () => dispatch(closePreferences()),
   clearCache: () => dispatch(clearSongCache()),
   startSongScan: () => dispatch(startSongScan()),
+  saveSaveFormat: value => dispatch(saveSaveFormat(value)),
+  setInvalidSaveFormat: value => dispatch(setInvalidSaveFormat(value)),
 })
 
 const mapStateToProps = state => ({
   library: state.preferences.library,
   show: state.ui.preferencesOpen,
   scanningSongs: state.ui.scanningSongs,
+  saveFormat: state.preferences.saveFormat,
+  invalidSaveFormat: state.preferences.invalidSaveFormat,
 })
 
 export default connect(
