@@ -36,7 +36,9 @@ const Header = ({
 
   const _latestCharts = () => {
     setSkip(0)
+    setFetchMode('latest')
     setSearchValue('')
+    setSearchQuery('')
     fetchCharts()
   }
 
@@ -57,6 +59,7 @@ const Header = ({
           <Toolbar.Button onClick={_prevCharts}>{'<'}</Toolbar.Button>
           <Toolbar.Button onClick={_nextCharts}>{'>'}</Toolbar.Button>
         </Toolbar.ButtonContainer>
+        <span style={{color: '#EEEEEE'}}>{skip} - {skip + 20}</span>
       </Toolbar.SearchContainer>
     </Toolbar>
   )

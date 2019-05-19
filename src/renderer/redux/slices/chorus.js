@@ -16,6 +16,7 @@ const chorus = createSlice({
       state.requesting = true
     },
     recieveCharts: (state, action) => {
+      state.requesting = false
       state.ids = action.payload.map(({id}) => id)
       state.byId = action.payload.reduce((a,v) => ({
         ...a,

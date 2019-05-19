@@ -12,6 +12,12 @@ const StyledLoading = Styled(ReactLoading)`
   border-radius: 8px;
 `
 
+const BigLoading = Styled(ReactLoading)`
+  position: absolute;
+  left: 25%;
+  top: 25%;
+`
+
 const secondsToMinuteSecond = seconds =>
   `${Math.floor(seconds / 60)}:${
     seconds % 60 < 10 ? '0' + (seconds % 60) : seconds % 60
@@ -23,7 +29,11 @@ const SongList = ({
   dlCache,
   currentlyDownloading,
   downloadChart,
+  requestingCharts
 }) => {
+  if (requestingCharts) {
+    return <BigLoading height="50%" width="50%" type="bars"/>
+  }
   const _downloadChart = chart => {
     downloadChart(chart)
   }
@@ -106,6 +116,7 @@ const mapStateToProps = state => ({
   charts: state.chorus.byId,
   dlCache: state.downloadManager.dlCache,
   currentlyDownloading: state.downloadManager.currentlyDownloading,
+  requestingCharts: state.chorus.requesting
 })
 
 const actionCreators = {
