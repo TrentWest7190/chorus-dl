@@ -1,11 +1,9 @@
 import React from 'react'
-import { connect } from 'react-redux'
 import Styled from 'styled-components'
 
 import Header from './containers/Header'
 import ChartList from './containers/SongList'
 import Preferences from './containers/Preferences'
-import ui from './redux/slices/ui'
 
 const AppWrapper = Styled.div`
   display: grid;
@@ -19,7 +17,7 @@ const ChartListWrapper = Styled.div`
   overflow-x: hidden;
 `
 
-const App = ({ preferencesOpen, closePreferences }) => {
+const App = () => {
   return (
     <AppWrapper>
       <Header />
@@ -31,15 +29,4 @@ const App = ({ preferencesOpen, closePreferences }) => {
   )
 }
 
-const mapStateToProps = state => ({
-  preferencesOpen: state.ui.preferencesOpen,
-})
-
-const actionCreators = {
-  closePreferences: ui.actions.closePreferences,
-}
-
-export default connect(
-  mapStateToProps,
-  actionCreators,
-)(App)
+export default App
