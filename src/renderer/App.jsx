@@ -2,57 +2,44 @@ import React from 'react'
 import { connect } from 'react-redux'
 import Styled from 'styled-components'
 
-import { closeModal } from './redux/actions'
+import Header from './containers/Header'
+import ChartList from './containers/SongList'
+import Preferences from './containers/Preferences'
+import ui from './redux/slices/ui'
 
-import ChartList from './components/ChartList'
-import Toolbar from './components/Toolbar'
-import Preferences from './components/Preferences'
-
-const Modals = {
-  Preferences
-}
-
-const ModalContainer = Styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0);
-  z-index: 2;
+const AppWrapper = Styled.div`
+  display: grid;
+  grid-template-rows: 50px max-content;
 `
 
-const ChartListContainer = Styled.div`
+const ChartListWrapper = Styled.div`
   width: 100%;
   height: calc(100vh - 50px);
   overflow-y: scroll;
   overflow-x: hidden;
 `
 
-const App = ({ modalOpen, ModalComponent, closeModal }) => {
-  let Modal = null
-  if (modalOpen) Modal = Modals[ModalComponent]
+const App = ({ preferencesOpen, closePreferences }) => {
   return (
-    <div>
-      <Preferences/>
-      {modalOpen && (
-        <ModalContainer onClick={closeModal}>
-          <Modal/>
-        </ModalContainer>
-      )}
-      <Toolbar />
-      <ChartListContainer>
+    <AppWrapper>
+      <Header />
+      <ChartListWrapper>
         <ChartList />
-      </ChartListContainer>
-    </div>
+      </ChartListWrapper>
+      <Preferences/>
+    </AppWrapper>
   )
 }
 
-const mapDispatchToProps = dispatch => ({
-  closeModal: () => dispatch(closeModal())
-})
-
 const mapStateToProps = state => ({
-  modalOpen: state.ui.modalOpen,
-  ModalComponent: state.ui.modal,
+  preferencesOpen: state.ui.preferencesOpen,
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(App)
+const actionCreators = {
+  closePreferences: ui.actions.closePreferences,
+}
+
+export default connect(
+  mapStateToProps,
+  actionCreators,
+)(App)

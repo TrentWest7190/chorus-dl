@@ -43,6 +43,7 @@ export const fetchLatestCharts = () => {
 export const searchCharts = query => {
   return (dispatch, getState) => {
     dispatch(requestCharts())
+    console.log(getState())
 
     return fetch(`https://chorus.fightthe.pw/api/${getState().charts.mode}?query=${query}`)
       .then(

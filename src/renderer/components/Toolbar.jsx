@@ -1,14 +1,7 @@
-import React, { useState } from 'react'
-import useDebouncedCallback from 'use-debounce/lib/callback'
-import { connect } from 'react-redux'
+import React from 'react'
 import Styled from 'styled-components'
-import {
-  searchCharts,
-  openPreferences,
-  setSearchMode
-} from '../redux/actions'
 
-const ToolbarContainer = Styled.div`
+const Toolbar = Styled.div`
   height: 50px;
   padding: 0 10px;
   display: grid;
@@ -17,7 +10,7 @@ const ToolbarContainer = Styled.div`
   grid-template-columns: min-content auto;
 `
 
-const Search = Styled.input`
+Toolbar.Search = Styled.input`
   height: 30px;
   border-radius: 15px;
   border: 0px;
@@ -33,7 +26,7 @@ const Search = Styled.input`
   }
 `
 
-const SearchContainer = Styled.div`
+Toolbar.SearchContainer = Styled.div`
   display: flex;
   justify-self: end;
   * {
@@ -45,7 +38,7 @@ const SearchContainer = Styled.div`
   }
 `
 
-const Button = Styled.button`
+Toolbar.Button = Styled.button`
   height: 30px;
   border-radius: 15px;
   border: 0px;
@@ -66,16 +59,8 @@ const Button = Styled.button`
   `}
 `
 
-const NextBack = Styled(
-  ({ className, onNext, onBack, disableBack, disableNext }) => (
-    <div className={className}>
-      <Button onClick={disableBack ? () => {} : onBack} disabled={disableBack}>{'<'}</Button>
-      <Button onClick={disableNext ? () => {} : onNext} disabled={disableNext}>{'>'}</Button>
-    </div>
-  ),
-)`
-
-  ${Button} {
+Toolbar.ButtonContainer = Styled.div`
+  ${Toolbar.Button} {
     width: 30px;
     :first-child {
       border-radius: 15px 0 0 15px;
@@ -88,7 +73,9 @@ const NextBack = Styled(
   }
 `
 
-const Toolbar = ({ isFetching, search, openPreferences, searchNextCharts, setSearchMode }) => {
+export default Toolbar
+
+/* const Toolbar = ({ isFetching, search, openPreferences, searchNextCharts, setSearchMode }) => {
   const [searchValue, setSearchValue] = useState('')
   const [skip, setSkip] = useState(0)
   const [_onChange] = useDebouncedCallback(query => {
@@ -148,3 +135,4 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Toolbar)
+ */

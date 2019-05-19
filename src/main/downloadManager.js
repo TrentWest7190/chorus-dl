@@ -59,7 +59,6 @@ ipcMain.on('request-download', async (ev, arg) => {
     })
   } else {
     for (const key in arg.directLinks) {
-      ev.sender.send('download-started', arg.id)
       await download(BrowserWindow.getFocusedWindow(), arg.directLinks[key], {
         directory: `${libraryPath}\\${parsedSaveFormat}`,
         filename: getTrueName(key),

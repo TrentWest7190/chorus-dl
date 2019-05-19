@@ -10,6 +10,10 @@ import './downloadManager'
 import App from './App'
 import store from './redux'
 
+import {fetchCharts} from './redux/slices/chorus'
+
+store.dispatch(fetchCharts())
+
 ReactDOM.render(
   <Provider store={store}>
     <App />

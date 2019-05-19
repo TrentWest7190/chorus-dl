@@ -29,7 +29,7 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  border-radius: 10px;
+  background-color: #111111;
 }
 
 ::-webkit-scrollbar-thumb {
